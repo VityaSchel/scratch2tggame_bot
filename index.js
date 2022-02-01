@@ -41,7 +41,7 @@ bot.onText(/\/start/, msg => {
 
 bot.on('inline_query', inlineQuery => {
   console.log('inlineQuery', inlineQuery)
-  const answerToInlineQuery = bot.answerInlineQuery(inlineQuery.id, [{ type: 'game', id: 0, game_short_name: 'dungeondash', data: 123 }])
+  const answerToInlineQuery = await bot.answerInlineQuery(inlineQuery.id, [{ type: 'game', id: 0, game_short_name: 'dungeondash', data: 123 }])
   console.log(answerToInlineQuery)
 })
 
