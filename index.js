@@ -43,7 +43,6 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
 const commonGames = ['dungeondash']
 
 bot.on('inline_query', async inlineQuery => {
-  console.log('inlineQuery', inlineQuery)
   bot.answerInlineQuery(inlineQuery.id, [
     {
       type: 'article', id: 0, title: 'your_game_placeholder', description: 'hello world',
@@ -56,6 +55,7 @@ bot.on('inline_query', async inlineQuery => {
 })
 
 bot.on('callback_query', async callbackQuery => {
+  console.log(callbackQuery.inline_message_id)
   if(callbackQuery.game_short_name === 'custom') {
     const projectID = await db.get(callbackQuery.inline_message_id)
     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
