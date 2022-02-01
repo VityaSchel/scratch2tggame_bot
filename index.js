@@ -45,12 +45,12 @@ bot.on('callback_query', callbackQuery => {
 
 app.get('/', (req, res) => {
   // res.sendFile(path.join(__dirname, 'game.html'))
-  res.sendStatus(200)
+  res.code(200).send('ok')
 })
 
 app.post(`/bot${TOKEN}`, (req, res) => {
   bot.processUpdate(req.body)
-  res.sendStatus(200)
+  res.code(200).send('ok')
 })
 
 app.listen(port).then(() => console.log(`Server is listening at http://localhost:${port}`))
