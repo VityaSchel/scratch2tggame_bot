@@ -1,0 +1,19 @@
+{
+  "name": "scratch2tggame_bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "vityaschel <hi@hloth.dev> (https://hloth.dev/)",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^15.0.0",
+    "fastify": "^3.27.0",
+    "node-telegram-bot-api": "^0.56.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
+}
