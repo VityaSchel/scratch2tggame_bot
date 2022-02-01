@@ -12,6 +12,7 @@
   "dependencies": {
     "dotenv": "^15.0.0",
     "fastify": "^3.27.0",
+    "level": "^7.0.1",
     "node-telegram-bot-api": "^0.56.0"
   },
   "devDependencies": {
