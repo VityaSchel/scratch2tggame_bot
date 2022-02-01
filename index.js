@@ -45,7 +45,7 @@ bot.on('callback_query', callbackQuery => {
 
 app.get('/', (req, res) => {
   // res.sendFile(path.join(__dirname, 'game.html'))
-  res.end()
+  res.sendStatus(200)
 })
 
 app.post(`/bot${TOKEN}`, (req, res) => {
