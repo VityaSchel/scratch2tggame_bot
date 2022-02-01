@@ -35,9 +35,9 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
     bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'incorrectLink'), { reply_to: msg.message_id })
   } else {
     // const message = await bot.sendGame(msg.chat.id, 'custom')
-    const message = await bot.sendMessage(msg.chat.id, 'Play!', { reply_markup: { inline_keyboard: [{
+    const message = await bot.sendMessage(msg.chat.id, 'Play!', { reply_markup: { inline_keyboard: [[{
       text: 'Play it!!!', callback_data: 123, callback_game: 'custom'
-    }]} })
+    }]]} })
     const projectID = arg.match(scratchProjectLinkRegex)[2]
     db.put(message.message_id, projectID)
   }
