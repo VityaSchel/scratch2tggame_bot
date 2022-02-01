@@ -60,7 +60,7 @@ bot.on('inline_query', async inlineQuery => {
 
 bot.on('callback_query', async callbackQuery => {
   if(callbackQuery.game_short_name === 'custom') {
-    const projectID = await db.get(callbackQuery.inline_message_id)
+    const projectID = callbackQuery.data.replaceAll(/^[^\d]+$/g, '')
     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
   } else {
     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${callbackQuery.game_short_name}` })
