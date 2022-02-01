@@ -15,7 +15,7 @@ bot.setWebHook(`${url}/bot${TOKEN}`)
 
 const localization = {
   ru: {
-    greetings: 'Привет\\! С помощью этого бота вы сможете играть в игры с сайта [scratch\\.mit\\.edu](https://scratch.mit.edu) в [Telegram](https://telegram.org/blog/games)\\. Бот использует [Turbowarp](https://github.com/TurboWarp/packager/) как компилятор файлов sb3\\. \n\nЧтобы начать игру, зайдите в любой чат и напишите `@scratch2tggame_bot`, после чего вы сможете выбрать любую из предустановленных игр. \n\nВы также можете играть в собственные игры со Scratch, которые не добавлены в бота по-умолчанию. Для этого введите `@scratch2tggame_bot [ссылка на проект]` в чате, где есть бот или в личных сообщениях\\. Например, `@scratch2tggame_bot https:\\/\\/scratch\\.mit\\.edu\\/projects\\/178966496` и нажмите на кнопку играть\\.',
+    greetings: 'Привет\\! С помощью этого бота вы сможете играть в игры с сайта [scratch\\.mit\\.edu](https://scratch.mit.edu) в [Telegram](https://telegram.org/blog/games)\\. Бот использует [Turbowarp](https://github.com/TurboWarp/packager/) как компилятор файлов sb3\\. \n\nЧтобы начать игру, зайдите в любой чат и напишите `@scratch2tggame_bot`, после чего вы сможете выбрать любую из предустановленных игр. \n\nВы также можете играть в собственные игры со Scratch, которые не добавлены в бота по-умолчанию\\. Для этого введите `@scratch2tggame_bot [ссылка на проект]` в чате, где есть бот или в личных сообщениях\\. Например, `@scratch2tggame_bot https:\\/\\/scratch\\.mit\\.edu\\/projects\\/178966496` и нажмите на кнопку играть\\.',
     incorrectLink: 'Ссылка некорректная'
   },
   default: {
