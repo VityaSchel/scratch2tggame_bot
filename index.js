@@ -39,7 +39,7 @@ bot.onText(/\/start/, msg => {
   bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'greetings'), { parse_mode: 'MarkdownV2' })
 })
 
-bot.on('inline_query', inlineQuery => {
+bot.on('inline_query', async inlineQuery => {
   console.log('inlineQuery', inlineQuery)
   const answerToInlineQuery = await bot.answerInlineQuery(inlineQuery.id, [{ type: 'game', id: 0, game_short_name: 'dungeondash', data: 123 }])
   console.log(answerToInlineQuery)
