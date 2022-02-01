@@ -27,7 +27,7 @@ bot.setWebHook(`${url}/bot${TOKEN}`)
 
 const localization = {
   ru: {
-    greetings: 'Привет\\! С помощью этого бота вы сможете играть в игры с сайта [scratch.mit.edu](https://scratch.mit.edu) в [Telegram](https://telegram.org/blog/games)\\. Бот использует [Turbowarp](https://github.com/TurboWarp/packager/) как компилятор файлов sb3\\. \n\nЧтобы начать игру, зайдите в любой чат, напишите @scratch2tggame_bot и через пробел ссылку на игру на сайте scratch, например «@scratch2tggame_bot https:\\/\\/scratch\\.mit\\.edu\\/projects\\/178966496» и нажмите на кнопку играть\\.'
+    greetings: 'Привет\\! С помощью этого бота вы сможете играть в игры с сайта [scratch\\.mit\\.edu](https://scratch.mit.edu) в [Telegram](https://telegram.org/blog/games)\\.'
   },
   default: {
 
