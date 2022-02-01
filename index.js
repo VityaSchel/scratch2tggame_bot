@@ -27,7 +27,7 @@ bot.setWebHook(`${url}/bot${TOKEN}`)
 
 const localization = {
   ru: {
-    greetings: 'Привет! С помощью этого бота вы сможете играть в игры с сайта (scratch.mit.edu) в [Telegram](https://telegram.org/blog/games). Бот использует [Turbowarp](https://github.com/TurboWarp/packager/) как компилятор файлов sb3. \n\nЧтобы начать игру, зайдите в любой чат, напишите @scratch2tggame_bot и через пробел ссылку на игру на сайте scratch, например «@scratch2tggame_bot https://scratch.mit.edu/projects/178966496» и нажмите на кнопку играть.'
+    greetings: 'Привет\\! С помощью этого бота вы сможете играть в игры с сайта (scratch.mit.edu) в [Telegram](https://telegram.org/blog/games)\\. Бот использует [Turbowarp](https://github.com/TurboWarp/packager/) как компилятор файлов sb3\\. \n\nЧтобы начать игру, зайдите в любой чат, напишите @scratch2tggame_bot и через пробел ссылку на игру на сайте scratch, например «@scratch2tggame_bot https://scratch.mit.edu/projects/178966496» и нажмите на кнопку играть\\.'
   },
   default: {
 
@@ -36,11 +36,11 @@ const localization = {
 const translate = (language, key) => (localization[language] ?? localization.default)[key]
 
 bot.onText(/\/start/, msg => {
-  bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'greetings'))
+  bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'greetings'), { parse_mode: 'MarkdownV2' })
 })
 
 bot.on('callback_query', callbackQuery => {
-  bot.answerCallbackQuery(callbackQuery.id, { results: [{ type: 'game', id: 0, game_short_name: 'dungeondash' }] })
+  bot.answerCallbackQuery(callbackQuery.id, [{ type: 'game', id: 0, game_short_name: 'dungeondash' }])
 })
 
 app.get('/', (req, res) => {
