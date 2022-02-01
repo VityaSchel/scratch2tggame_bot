@@ -29,9 +29,9 @@ bot.onText(/\/start/, msg => {
 })
 
 const scratchProjectLinkRegex = /^(https:\/\/scratch.mit.edu\/projects\/)?(\d+)\/$/
-bot.onText(/\/play (.*)/, async (msg, match) => {
-  const arg = match[1]
-  if(!arg.test(scratchProjectLinkRegex)) {
+bot.onText(/\/play(@scratch2tggame_bot)? (.*)/, async (msg, match) => {
+  const arg = match[2]
+  if(!scratchProjectLinkRegex.test(arg)) {
     bot.sendMessage(msg.chat.id, translate('incorrectLink'), { reply_to: msg.message_id })
   } else {
     const message = await bot.sendGame(msg.chat.id, 'custom')
