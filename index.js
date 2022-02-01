@@ -59,8 +59,7 @@ bot.on('inline_query', async inlineQuery => {
 })
 
 bot.on('callback_query', async callbackQuery => {
-  console.log(callbackQuery)
-  if(callbackQuery.game_short_name === 'custom') {
+  if(!callbackQuery.game_short_name) {
     const projectID = callbackQuery.data.replaceAll(/^[^\d]+$/g, '')
     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
   } else {
