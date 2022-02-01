@@ -28,8 +28,8 @@ bot.onText(/\/start/, msg => {
   bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'greetings'), { parse_mode: 'MarkdownV2' })
 })
 
-const scratchProjectLinkRegex = /^(https:\/\/scratch.mit.edu\/projects\/)?(\d+)\/$/
-bot.onText(/\/play(@scratch2tggame_bot)? (.*)/, async (msg, match) => {
+const scratchProjectLinkRegex = /^(https:\/\/scratch.mit.edu\/projects\/)?(\d+)\/?$/
+bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
   const arg = match[2]
   if(!scratchProjectLinkRegex.test(arg)) {
     bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'incorrectLink'), { reply_to: msg.message_id })
