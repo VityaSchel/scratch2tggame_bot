@@ -39,11 +39,13 @@ bot.onText(/\/start/, msg => {
   bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'greetings'), { parse_mode: 'MarkdownV2' })
 })
 
-bot.on('inline_query', callbackQuery => {
-  bot.answerInlineQuery(callbackQuery.id, [{ type: 'game', id: 0, game_short_name: 'dungeondash' }])
+bot.on('inline_query', inlineQuery => {
+  console.log('inlineQuery', inlineQuery)
+  bot.answerInlineQuery(inlineQuery.id, [{ type: 'game', id: 0, game_short_name: 'dungeondash', data: 123 }])
 })
-//callback_game
+
 bot.on('callback_query', callbackQuery => {
+  console.log('callbackQuery', callbackQuery)
   bot.answerCallbackQuery(callbackQuery.id, { url: 'https://scratch2tggame.utidteam.com/' })
 })
 
