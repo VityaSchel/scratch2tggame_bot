@@ -36,7 +36,7 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
   } else {
     // const message = await bot.sendGame(msg.chat.id, 'custom')
     const message = await bot.sendMessage(msg.chat.id, 'Play!', { reply_markup: { inline_keyboard: [[{
-      text: 'Play it!!!', callback_data: 123, callback_game: 'custom'
+      text: 'Play it!!!', callback_data: '123', callback_game: 'custom'
     }]]} })
     const projectID = arg.match(scratchProjectLinkRegex)[2]
     db.put(message.message_id, projectID)
@@ -59,6 +59,7 @@ bot.on('inline_query', async inlineQuery => {
 })
 
 bot.on('callback_query', async callbackQuery => {
+  console.log(callbackQuery)
   if(callbackQuery.game_short_name === 'custom') {
     const projectID = callbackQuery.data.replaceAll(/^[^\d]+$/g, '')
     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
