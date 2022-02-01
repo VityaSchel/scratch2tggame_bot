@@ -21,7 +21,7 @@ const localization = {
   default: {
 
   }
-}©©©©©©©©©©©
+}
 const translate = (language, key) => (localization[language] ?? localization.default)[key]
 
 bot.onText(/\/start/, msg => {
