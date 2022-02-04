@@ -10,12 +10,19 @@
   "author": "vityaschel <hi@hloth.dev> (https://hloth.dev/)",
   "license": "MIT",
   "dependencies": {
+    "@turbowarp/packager": "0.5.0",
+    "arraybuffer-to-buffer": "^0.0.7",
+    "dedent": "^0.7.0",
     "dotenv": "^15.0.0",
     "fastify": "^3.27.0",
     "level": "^7.0.1",
-    "node-telegram-bot-api": "^0.56.0"
+    "node-fetch": "^3.2.0",
+    "node-telegram-bot-api": "^0.56.0",
+    "scratch-api": "^1.1.12",
+    "unzipper": "^0.10.11"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^7.32.0",
+    "ngrok": "^4.3.0"
   }
 }

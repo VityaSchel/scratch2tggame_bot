@@ -1,67 +1,88 @@
 import 'dotenv/config'
 import TelegramBot from 'node-telegram-bot-api'
-import level from 'level'
 import fastify from 'fastify'
+import _ from 'lodash'
+import { pack, saveGame } from './src/packager.js'
+import ngrok from 'ngrok'
+import localization from './src/localization.js'
 
 const TOKEN = process.env.TELEGRAM_TOKEN
-const url = 'https://scratch2tggame.utidteam.com'
+let url = 'https://scratch2tggame.utidteam.com'
 const port = 9223
 
 const bot = new TelegramBot(TOKEN)
 const app = fastify()
-const db = level('games')
+
+const ngrokurl = await ngrok.connect({ addr: port, authtoken: process.env.NGROK })
+console.log(ngrokurl)
+url = ngrokurl
 
 bot.setWebHook(`${url}/bot${TOKEN}`)
 
-const localization = {
-  ru: {
-    greetings: 'Привет\\! С помощью этого бота вы сможете играть в игры с сайта [scratch\\.mit\\.edu](https://scratch.mit.edu) в [Telegram](https://telegram.org/blog/games)\\. Бот использует [Turbowarp](https://github.com/TurboWarp/packager/) как компилятор файлов sb3\\. \n\nЧтобы начать игру, зайдите в любой чат и напишите `@scratch2tggame_bot`, после чего вы сможете выбрать любую из предустановленных игр\\. \n\nВы также можете играть в собственные игры со Scratch, которые не добавлены в бота по\\-умолчанию\\. Для этого введите `@scratch2tggame_bot [ссылка на проект]` в чате, где есть бот или в личных сообщениях\\. Например, `@scratch2tggame_bot https:\\/\\/scratch\\.mit\\.edu\\/projects\\/178966496` и нажмите на кнопку играть\\.',
-    incorrectLink: 'Ссылка некорректная'
-  },
-  default: {
-
-  }
+const translate = (language, key) => _.get((localization[language] ?? localization.default), key)
+const send = async (msg, textKey, options = {}) => {
+  return await bot.sendMessage(msg.chat.id, translate(msg.from.language_code, textKey), _.merge({ parse_mode: 'HTML' }, options))
 }
-const translate = (language, key) => (localization[language] ?? localization.default)[key]
+const update = async (updateID, originalMsg, textKey, options = {}) => {
+  return await bot.editMessageText(
+    translate(originalMsg.from.language_code, textKey),
+    _.merge({ chat_id: originalMsg.chat.id, message_id: updateID, parse_mode: 'HTML' }, options)
+  )
+}
 
-bot.onText(/\/start/, msg => {
-  bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'greetings'), { parse_mode: 'MarkdownV2' })
-})
+bot.onText(/^\/(start|help)/, msg => send(msg, 'greetings', { disable_web_page_preview: true }))
+bot.onText(/^\/info/, msg => send(msg, 'technicalDetails', { disable_web_page_preview: true }))
 
 const scratchProjectLinkRegex = /^(https:\/\/scratch.mit.edu\/projects\/)?(\d+)\/?$/
 bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
   const arg = match[2]
   if(!scratchProjectLinkRegex.test(arg)) {
-    bot.sendMessage(msg.chat.id, translate(msg.from.language_code, 'incorrectLink'), { reply_to: msg.message_id })
+    send(msg, 'incorrectLink')
   } else {
-    const message = await bot.sendGame(msg.chat.id, 'custom')
     const projectID = arg.match(scratchProjectLinkRegex)[2]
-    db.put(message.message_id, projectID)
-  }
-})
+    const generatingMsg = await send(msg, 'generating.processing')
+    bot.sendChatAction(msg.chat.id, 'upload_document')
+    try {
+      const zip = await pack(projectID)
+      await saveGame(projectID, zip)
+    } catch(e) {
+      switch(e.botMessage) {
+        case 'gameIsTooBig':
+          update(generatingMsg.message_id, msg, 'generating.error.gameIsTooBig')
+          break
 
-const commonGames = ['dungeondash']
-
-bot.on('inline_query', async inlineQuery => {
-  bot.answerInlineQuery(inlineQuery.id, [
-    {
-      type: 'article', id: 0, title: 'your_game_placeholder', description: 'hello world',
-      input_message_content: {
-        message_text: `/play@scratch2tggame_bot ${inlineQuery.query}`
+        default:
+          console.error(e)
+          update(generatingMsg.message_id, msg, 'generating.error.default')
+          break
       }
-    },
-    ...commonGames.map((gameShortName, i) => ({ type: 'game', id: i+1, game_short_name: gameShortName }))
-  ])
-})
-
-bot.on('callback_query', async callbackQuery => {
-  if(callbackQuery.game_short_name === 'custom') {
-    const projectID = await db.get(callbackQuery.message.message_id)
-    bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
-  } else {
-    bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${callbackQuery.game_short_name}` })
+    }
+    // const message = await bot.sendGame(msg.chat.id, 'custom')
   }
 })
+
+// const commonGames = ['dungeondash']
+
+// bot.on('inline_query', async inlineQuery => {
+//   bot.answerInlineQuery(inlineQuery.id, [
+//     {
+//       type: 'article', id: 0, title: 'your_game_placeholder', description: 'hello world',
+//       input_message_content: {
+//         message_text: `/play@scratch2tggame_bot ${inlineQuery.query}`
+//       }
+//     },
+//     ...commonGames.map((gameShortName, i) => ({ type: 'game', id: i+1, game_short_name: gameShortName }))
+//   ])
+// })
+//
+// bot.on('callback_query', async callbackQuery => {
+//   if(callbackQuery.game_short_name === 'custom') {
+//     // const projectID = await db.get(callbackQuery.message.message_id)
+//     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
+//   } else {
+//     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${callbackQuery.game_short_name}` })
+//   }
+// })
 
 app.get('*', (req, res) => {
   // res.sendFile(path.join(__dirname, 'game.html'))
