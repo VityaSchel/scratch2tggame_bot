@@ -6,7 +6,7 @@ import unzipper from 'unzipper'
 import path from 'path'
 const __dirname = new URL('.', import.meta.url).pathname
 
-export async function retreiveInfo(projectID) {
+export async function retrieveInfo(projectID) {
   const projectFileResponse = await fetch(`https://projects.scratch.mit.edu/${projectID}`)
   const projectFile = await projectFileResponse.arrayBuffer()
   const projectDataResponse = await fetch(`https://api.scratch.mit.edu/projects/${projectID}`)
@@ -44,7 +44,8 @@ export async function pack(projectFile) {
 }
 
 const scriptJsFileSize = 1024 * 1024 * 2.4
-const gameMaxSize = 1024 * 1024 * 10
+const gameMaxSize = 1024 * 1024 * 5
+const accountGamesMaxSize = 1024 * 1024 * 50
 export async function saveGame(projectID, zip) {
   const projectZipBuffer = arrayToBuffer(zip)
   const filesize = Buffer.byteLength(projectZipBuffer)

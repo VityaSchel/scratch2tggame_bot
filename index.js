@@ -2,7 +2,7 @@ import 'dotenv/config'
 import TelegramBot from 'node-telegram-bot-api'
 import fastify from 'fastify'
 import _ from 'lodash'
-import { retreiveInfo, pack, saveGame } from './src/packager.js'
+import { retrieveInfo, pack, saveGame } from './src/packager.js'
 import { addGame } from './src/mtproto/botfather.js'
 import ngrok from 'ngrok'
 import localization from './src/localization.js'
@@ -46,10 +46,10 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
     send(msg, 'incorrectLink')
   } else {
     const projectID = arg.match(scratchProjectLinkRegex)[2]
-    const generatingMsg = await send(msg, 'generating.retreiving')
+    const generatingMsg = await send(msg, 'generating.retrieving')
     bot.sendChatAction(msg.chat.id, 'upload_document')
     try {
-      const { projectFile, projectData } = await retreiveInfo(projectID)
+      const { projectFile, projectData } = await retrieveInfo(projectID)
       await update(generatingMsg.message_id, msg, 'generating.processing')
       await bot.sendChatAction(msg.chat.id, 'upload_document')
 
