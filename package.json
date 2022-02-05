@@ -6,8 +6,7 @@
   "main": "index.js",
   "scripts": {
     "botstart": "node index.js",
-    "bdstart": "",
-    "start": "concurrently \"npm botstart\" \"npm bdstart\""
+    "dbstart": "mongod --dbpath=./.mongodb --port 9224 --auth"
   },
   "author": "vityaschel <hi@hloth.dev> (https://hloth.dev/)",
   "license": "MIT",
@@ -30,7 +29,7 @@
     "unzipper": "^0.10.11"
   },
   "devDependencies": {
-    "eslint": "^7.32.0",
+    "eslint": "^8.8.0",
     "ngrok": "^4.3.0"
   }
 }

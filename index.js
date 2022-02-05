@@ -1,15 +1,17 @@
 import 'dotenv/config'
-import TelegramBot from 'node-telegram-bot-api'
-import fastify from 'fastify'
 import _ from 'lodash'
-import { retrieveInfo, pack, saveGame } from './src/packager.js'
-import { addGame } from './src/mtproto/botfather.js'
-import ngrok from 'ngrok'
-import localization from './src/localization.js'
+    import ngrok from 'ngrok'
+import fastify from 'fastify'
 import fetch from 'node-fetch'
-import { insertToDB } from './src/db.js'
-import { getAPI } from './src/mtproto/setup.js'
+import TelegramBot from 'node-telegram-bot-api'
 import arrayToBuffer from 'arraybuffer-to-buffer'
+import localization from './src/localization.js'
+import { addGame } from './src/mtproto/botfather.js'
+import { getAPI } from './src/mtproto/setup.js'
+import { close as closeTelegramMTProto } from './src/mtproto/utils.js'
+import { retrieveInfo, pack, saveGame } from './src/packager.js'
+import { init as initDB, insertToDB, queryGame, isGameExists } from './src/db.js'
+import { checkLimits } from './src/limits.js'
 
 const TOKEN = process.env.TELEGRAM_TOKEN
 let url = 'https://scratch2tggame.utidteam.com'
@@ -17,7 +19,8 @@ const port = 9223
 
 const bot = new TelegramBot(TOKEN)
 const app = fastify()
-// await getAPI()
+await getAPI()
+const dbClient = await initDB()
 
 const ngrokurl = await ngrok.connect({ addr: port, authtoken: process.env.NGROK })
 console.log(ngrokurl)
@@ -46,9 +49,14 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
     send(msg, 'incorrectLink')
   } else {
     const projectID = arg.match(scratchProjectLinkRegex)[2]
-    const generatingMsg = await send(msg, 'generating.retrieving')
+    const generatingMsg = await send(msg, 'generating.check')
     bot.sendChatAction(msg.chat.id, 'upload_document')
     try {
+      if(await isGameExists(projectID)) throw  { code: 'scratchBot', botMessage: 'gameExists' }
+      await checkLimits(msg.from.id)
+      await update(generatingMsg.message_id, msg, 'generating.retrieving')
+      await bot.sendChatAction(msg.chat.id, 'upload_document')
+
       const { projectFile, projectData } = await retrieveInfo(projectID)
       await update(generatingMsg.message_id, msg, 'generating.processing')
       await bot.sendChatAction(msg.chat.id, 'upload_document')
@@ -64,15 +72,18 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
       const { title, description, instructions, author, image } = projectData
       const projectImage = await fetch(image)
       const photoBuffer = arrayToBuffer(await projectImage.arrayBuffer())
+      const gameAbout = `${instructions}\n${description}`
       const tgGame = {
-        title: _.truncate(title.length, { length: 64 }),
-        description: _.truncate(`${instructions}\n${description}`, { length: 500 })
+        title: _.truncate(title, { length: 64 }),
+        description: _.truncate(gameAbout, { length: 500 })
       }
+      const size = Buffer.byteLength(zip)
       await addGame(projectID, tgGame.title, tgGame.description, photoBuffer)
-      await insertToDB(projectID, title, description, author.id)
+      await insertToDB(projectID, title, gameAbout, size, author.id, msg.from.id)
       await bot.sendGame(msg.chat.id, `id${projectID}`)
       await update(generatingMsg.message_id, msg, 'generating.done')
     } catch (e) {
+      const botErrors = Object.keys(localization.default.generating.error)
       switch (e.code) {
         case 'ETELEGRAM':
           switch (e.message) {
@@ -88,42 +99,42 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
           break
 
         case 'scratchBot':
-          switch (e.botMessage) {
-            case 'gameIsTooBig':
-              update(generatingMsg.message_id, msg, 'generating.error.gameIsTooBig')
-              break
-
-            default:
-              console.error(e)
-              update(generatingMsg.message_id, msg, 'generating.error.default')
-              break
-          }
-          break
+          update(
+            generatingMsg.message_id, msg, 
+            botErrors.includes(e.botMessage) ? `generating.error.${e.botMessage}` : 'generating.error.default'
+          )
       }
     }
   }
 })
 
-// bot.on('inline_query', async inlineQuery => {
-//   bot.answerInlineQuery(inlineQuery.id, [
-//     {
-//       type: 'article', id: 0, title: 'your_game_placeholder', description: 'hello world',
-//       input_message_content: {
-//         message_text: `/play@scratch2tggame_bot ${inlineQuery.query}`
-//       }
-//     },
-//     ...commonGames.map((gameShortName, i) => ({ type: 'game', id: i+1, game_short_name: gameShortName }))
-//   ])
-// })
-//
-// bot.on('callback_query', async callbackQuery => {
-//   if(callbackQuery.game_short_name === 'custom') {
-//     // const projectID = await db.get(callbackQuery.message.message_id)
-//     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
-//   } else {
-//     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${callbackQuery.game_short_name}` })
-//   }
-// })
+const topGames = [178966496]
+bot.on('inline_query', async inlineQuery => {
+  const term = inlineQuery.query
+  const answerInlineQuery = list => {
+    bot.answerInlineQuery(
+      inlineQuery.id, 
+      list.map((gameId, i) => ({ type: 'game', id: i+1, game_short_name: `id${gameId}` }))
+    )
+  }
+  if(term === '') {
+    answerInlineQuery(topGames)
+  } else {
+    const resultList = await queryGame(term)
+    answerInlineQuery(resultList.map(({ _id }) => _id))
+  }
+})
+
+const gameShortNameRegex = /^id(\d+)$/
+bot.on('callback_query', async callbackQuery => {
+  const gameShortName = callbackQuery.game_short_name
+  if(!gameShortNameRegex.test(gameShortName)) {
+    bot.answerCallbackQuery(callbackQuery.id, { text: 'Неправильный ID игры', show_alert: true })
+  } else {
+    const projectID = gameShortName.match(gameShortNameRegex)[1]
+    bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
+  }
+})
 
 app.post(`/bot${TOKEN}`, (req, res) => {
   bot.processUpdate(req.body)
@@ -131,3 +142,9 @@ app.post(`/bot${TOKEN}`, (req, res) => {
 })
 
 app.listen(port).then(() => console.log(`Server is listening at http://localhost:${port}`))
+
+process.on('SIGINT', async () => {
+  await dbClient.close()
+  closeTelegramMTProto()
+  process.exit(0)
+})

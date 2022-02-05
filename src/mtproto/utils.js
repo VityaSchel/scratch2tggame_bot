@@ -51,6 +51,17 @@ export function checkPassword({ srp_id, A, M1 }) {
   })
 }
 
+export function close() {
+  global.mtprotoapi.call = () => {
+    throw new Error('MTProto has been closed.')
+  }
+
+  for (let rpc of Object.values(global.mtprotoapi.rpcs)) {
+    rpc.transport.connect = () => {}
+    rpc.transport.socket.destroy()
+  }
+}
+
 export function randomInt() {
   return Math.ceil(Math.random() * 0xffffff) + Math.ceil(Math.random() * 0xffffff)
 }
