@@ -1,18 +1,20 @@
 import fetch from 'node-fetch'
 import Packager from '@turbowarp/packager'
-import scratchAPI from 'scratch-api'
 import _ from 'lodash'
 import arrayToBuffer from 'arraybuffer-to-buffer'
-import util from 'util'
 import unzipper from 'unzipper'
 import path from 'path'
 const __dirname = new URL('.', import.meta.url).pathname
 
-export async function pack(projectID) {
-  const project = await fetch(`https://projects.scratch.mit.edu/${projectID}`)
-  const projectFile = await project.arrayBuffer()
-  const projectData = await util.promisify(scratchAPI.getProject)(projectID)
-  console.log(projectData)
+export async function retreiveInfo(projectID) {
+  const projectFileResponse = await fetch(`https://projects.scratch.mit.edu/${projectID}`)
+  const projectFile = await projectFileResponse.arrayBuffer()
+  const projectDataResponse = await fetch(`https://api.scratch.mit.edu/projects/${projectID}`)
+  const projectData = await projectDataResponse.json()
+  return { projectFile, projectData }
+}
+
+export async function pack(projectFile) {
   const loadedProject = await Packager.loadProject(projectFile)
   const packager = new Packager.Packager()
   packager.project = loadedProject
