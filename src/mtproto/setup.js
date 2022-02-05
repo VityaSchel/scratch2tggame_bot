@@ -67,6 +67,7 @@ export async function getAPI() {
     }
   }
 
-  await authorize()
+  const user = await authorize()
+  console.log('Logged in Telegram MTProto API as', user?.user?.first_name, user?.user?.last_name)
   return api
 }

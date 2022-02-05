@@ -6,7 +6,10 @@ import { retreiveInfo, pack, saveGame } from './src/packager.js'
 import { addGame } from './src/mtproto/botfather.js'
 import ngrok from 'ngrok'
 import localization from './src/localization.js'
+import fetch from 'node-fetch'
+import { insertToDB } from './src/db.js'
 import { getAPI } from './src/mtproto/setup.js'
+import arrayToBuffer from 'arraybuffer-to-buffer'
 
 const TOKEN = process.env.TELEGRAM_TOKEN
 let url = 'https://scratch2tggame.utidteam.com'
@@ -14,7 +17,7 @@ const port = 9223
 
 const bot = new TelegramBot(TOKEN)
 const app = fastify()
-await getAPI()
+// await getAPI()
 
 const ngrokurl = await ngrok.connect({ addr: port, authtoken: process.env.NGROK })
 console.log(ngrokurl)
@@ -58,18 +61,43 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
       await update(generatingMsg.message_id, msg, 'generating.botfather')
       await bot.sendChatAction(msg.chat.id, 'upload_document')
 
-      await addGame(projectID, title, description, photoBuffer)
+      const { title, description, instructions, author, image } = projectData
+      const projectImage = await fetch(image)
+      const photoBuffer = arrayToBuffer(await projectImage.arrayBuffer())
+      const tgGame = {
+        title: _.truncate(title.length, { length: 64 }),
+        description: _.truncate(`${instructions}\n${description}`, { length: 500 })
+      }
+      await addGame(projectID, tgGame.title, tgGame.description, photoBuffer)
+      await insertToDB(projectID, title, description, author.id)
+      await bot.sendGame(msg.chat.id, `id${projectID}`)
       await update(generatingMsg.message_id, msg, 'generating.done')
-      bot.sendGame(msg.message_id, projectID)
-    } catch(e) {
-      switch(e.botMessage) {
-        case 'gameIsTooBig':
-          update(generatingMsg.message_id, msg, 'generating.error.gameIsTooBig')
+    } catch (e) {
+      switch (e.code) {
+        case 'ETELEGRAM':
+          switch (e.message) {
+            case 'ETELEGRAM: 400 Bad Request: wrong game short name specified':
+              update(generatingMsg.message_id, msg, 'generating.error.botFatherLimit')
+              break
+
+            default:
+              console.error(e)
+              update(generatingMsg.message_id, msg, 'generating.error.telegramAPI')
+              break
+          }
           break
 
-        default:
-          console.error(e)
-          update(generatingMsg.message_id, msg, 'generating.error.default')
+        case 'scratchBot':
+          switch (e.botMessage) {
+            case 'gameIsTooBig':
+              update(generatingMsg.message_id, msg, 'generating.error.gameIsTooBig')
+              break
+
+            default:
+              console.error(e)
+              update(generatingMsg.message_id, msg, 'generating.error.default')
+              break
+          }
           break
       }
     }

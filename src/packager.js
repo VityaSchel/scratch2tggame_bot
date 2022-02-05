@@ -48,7 +48,7 @@ const gameMaxSize = 1024 * 1024 * 10
 export async function saveGame(projectID, zip) {
   const projectZipBuffer = arrayToBuffer(zip)
   const filesize = Buffer.byteLength(projectZipBuffer)
-  if(filesize - scriptJsFileSize > gameMaxSize) throw { botError: 'gameIsTooBig' }
+  if(filesize - scriptJsFileSize > gameMaxSize) throw { code: 'scratchBot', botMessage: 'gameIsTooBig' }
   const gameZipBuffer = await unzipper.Open.buffer(projectZipBuffer)
   await gameZipBuffer.extract({ path: path.join(__dirname, `../website/${projectID}`) })
 }

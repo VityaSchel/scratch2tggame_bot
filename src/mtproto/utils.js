@@ -50,3 +50,13 @@ export function checkPassword({ srp_id, A, M1 }) {
     },
   })
 }
+
+export function randomInt() {
+  return Math.ceil(Math.random() * 0xffffff) + Math.ceil(Math.random() * 0xffffff)
+}
+
+export function randomLong() {
+  let long = ''
+  for(let i = 0; i < 19; ++i) long += Math.floor(Math.random() * 10)
+  return long
+}
