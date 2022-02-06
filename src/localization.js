@@ -27,6 +27,9 @@ export default {
     Имейте в виду, что со временем большие по размеру игры, не пользующиеся особой популярностью, могут быть удалены, \
     а за нарушения и абьюз бота и сайта ваш аккаунт или игра могут быть заблокированы.
 
+    Этот бот работает на двух языках: Русский и Английский, отвечая на языке, соответствующем параметру locale в Bot API, \
+    поэтому для изменения языка вам необходимо поменять язык вашего клиента Телеграм.
+
     Бот создан @hlothdev. Автор не несет ответственности за любые размещенные материалы в играх. По всем вопросам, \
     связанным с авторскими правами, просьба обращаться к авторам игр на Scratch. ID проекта отображается над описанием в
     сообщении с кнопкой для начала игры. В будущем планируется автоматизация процесса удаления игр авторами, а пока что \
@@ -79,6 +82,9 @@ export default {
     • Up to 50 MB per account on all generated games
     Please keep in mind, that large games with no activity can be deleted, and accounts/games that abuse bot can be banned.
 
+    This bot supports two languages: Russian and English, it decides which language to communicate using locale \
+    parameter in Telegram API, please change your Telegram client langauge in order to change language in this bot.
+
     Bot created by @hlothdev. The author is not responsible for any any injuries, small or severe, that may happen \
     while trespassing on Freddy Fazbear's Pizza. Upon discovery of trespassing, the trespasser will swiftly be \
     reported to the police and banned from the restaurant. The author is also not materials posted in the games. \
@@ -88,7 +94,7 @@ export default {
     generating: {
       check: '⏳ Checking rights...',
       queue: '⏳ You are in the queue...',
-      retrieving: '⏳ [12/4] Retrieving info about project...',
+      retrieving: '⏳ [1/4] Retrieving info about project...',
       processing: '⏳ [2/4] Converting game...',
       uploading: '⏳ [3/4] Uploading to the server...',
       botfather: '⏳ [4/4] Adding to BotFather...',
