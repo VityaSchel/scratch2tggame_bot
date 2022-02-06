@@ -1,17 +1,13 @@
-import 'dotenv/config'
+import './dotenv.js'
 import _ from 'lodash'
     import ngrok from 'ngrok'
 import fastify from 'fastify'
-import fetch from 'node-fetch'
-import TelegramBot from 'node-telegram-bot-api'
-import arrayToBuffer from 'arraybuffer-to-buffer'
 import localization from './src/localization.js'
-import { addGame } from './src/mtproto/botfather.js'
-import { getAPI } from './src/mtproto/setup.js'
-import { close as closeTelegramMTProto } from './src/mtproto/utils.js'
-import { retrieveInfo, pack, saveGame } from './src/packager.js'
-import { init as initDB, insertToDB, queryGame, isGameExists } from './src/db.js'
+import TelegramBot from 'node-telegram-bot-api'
+import { init as initDB, queryGame, isGameExists } from './src/db.js'
 import { checkLimits } from './src/limits.js'
+// import { insertToQueue, removeFromQueue } from './src/queue/manager.js'
+import Queue from 'bee-queue'
 
 const TOKEN = process.env.TELEGRAM_TOKEN
 let url = 'https://scratch2tggame.utidteam.com'
@@ -19,8 +15,8 @@ const port = 9223
 
 const bot = new TelegramBot(TOKEN)
 const app = fastify()
-await getAPI()
 const dbClient = await initDB()
+const queue = new Queue('games-converting')
 
 const ngrokurl = await ngrok.connect({ addr: port, authtoken: process.env.NGROK })
 console.log(ngrokurl)
@@ -54,43 +50,31 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
     try {
       if(await isGameExists(projectID)) throw  { code: 'scratchBot', botMessage: 'gameExists' }
       await checkLimits(msg.from.id)
-      await update(generatingMsg.message_id, msg, 'generating.retrieving')
-      await bot.sendChatAction(msg.chat.id, 'upload_document')
+      await update(generatingMsg.message_id, msg, 'generating.queue')
 
-      const { projectFile, projectData } = await retrieveInfo(projectID)
-      await update(generatingMsg.message_id, msg, 'generating.processing')
-      await bot.sendChatAction(msg.chat.id, 'upload_document')
+      const job = queue.createJob({ projectID: projectID, userID: msg.from.id })
+        .timeout(60000)
+        .save()
+      console.log('Added job to queue', job.id)
 
-      const zip = await pack(projectFile)
-      await update(generatingMsg.message_id, msg, 'generating.uploading')
-      await bot.sendChatAction(msg.chat.id, 'upload_document')
+      job.on('progress', async progress => {
+        await update(generatingMsg.message_id, msg, `generating.${progress.status}`)
+        await bot.sendChatAction(msg.chat.id, 'upload_document')
+      })
 
-      await saveGame(projectID, zip)
-      await update(generatingMsg.message_id, msg, 'generating.botfather')
-      await bot.sendChatAction(msg.chat.id, 'upload_document')
+      job.on('failed', err => {
+        throw err
+      })
 
-      const { title, description, instructions, author, image } = projectData
-      const projectImage = await fetch(image)
-      const photoBuffer = arrayToBuffer(await projectImage.arrayBuffer())
-      const gameAbout = `${instructions}\n${description}`
-      const tgGame = {
-        title: _.truncate(title, { length: 64 }),
-        description: _.truncate(gameAbout, { length: 500 })
-      }
-      const size = Buffer.byteLength(zip)
-      await addGame(projectID, tgGame.title, tgGame.description, photoBuffer)
-      await insertToDB(projectID, title, gameAbout, size, author.id, msg.from.id)
-      await bot.sendGame(msg.chat.id, `id${projectID}`)
-      await update(generatingMsg.message_id, msg, 'generating.done')
+      job.on('succeeded', () => {
+        update(generatingMsg.message_id, msg, 'generating.done')
+        bot.sendGame(msg.chat.id, `id${projectID}`)
+      })
     } catch (e) {
       const botErrors = Object.keys(localization.default.generating.error)
       switch (e.code) {
         case 'ETELEGRAM':
           switch (e.message) {
-            case 'ETELEGRAM: 400 Bad Request: wrong game short name specified':
-              update(generatingMsg.message_id, msg, 'generating.error.botFatherLimit')
-              break
-
             default:
               console.error(e)
               update(generatingMsg.message_id, msg, 'generating.error.telegramAPI')
@@ -103,6 +87,12 @@ bot.onText(/\/play(@scratch2tggame_bot)? ?(.*)?/, async (msg, match) => {
             generatingMsg.message_id, msg, 
             botErrors.includes(e.botMessage) ? `generating.error.${e.botMessage}` : 'generating.error.default'
           )
+          break
+
+        default:
+          console.error(e)
+          update(generatingMsg.message_id, msg, 'generating.error.default') 
+          break
       }
     }
   }
@@ -145,6 +135,5 @@ app.listen(port).then(() => console.log(`Server is listening at http://localhost
 
 process.on('SIGINT', async () => {
   await dbClient.close()
-  closeTelegramMTProto()
   process.exit(0)
 })

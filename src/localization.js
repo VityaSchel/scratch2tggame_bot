@@ -32,14 +32,16 @@ export default {
     сообщении с кнопкой для начала игры. В будущем планируется автоматизация процесса удаления игр авторами, а пока что \
     вы можете обратиться ко мне для подтверждения владением проекта.`,
     generating: {
-      check: '⏳ [1/5] Проверка прав...',
-      retrieving: '⏳ [2/5] Получение информации об игре...',
-      processing: '⏳ [3/5] Конвертация игры...',
-      uploading: '⏳ [4/5] Загрузка на сервер...',
-      botfather: '⏳ [5/5] Добавление в BotFather...',
+      check: '⏳ Проверка прав...',
+      queue: '⏳ Вы в очереди...',
+      retrieving: '⏳ [1/4] Получение информации об игре...',
+      processing: '⏳ [2/4] Конвертация игры...',
+      uploading: '⏳ [3/4] Загрузка на сервер...',
+      botfather: '⏳ [4/4] Добавление в BotFather...',
       done: '✅ Игра добавлена в бота. Может потребоваться до 5 минут, прежде чем игра появится в списке.',
       error: {
         default: '❌ Ошибка при конвертации игры, попробуйте еще раз',
+        alreadyQueued: '❌ Вы уже в очереди',
         gameIsTooBig: '❌ Размер игры превышает 5 МБ, поэтому её невозможно конвертировать',
         botFatherLimit: '❌ Ошибка при добавлении игры в BotFather. Возможно, бот перегружен, попробуйте через час или напишите @hlothdev',
         telegramAPI: '❌ Ошибка с Telegram API, попробуйте через несколько минут или напишите @hlothdev',
@@ -83,14 +85,16 @@ export default {
     above the description in message with a button to start the game. In the future, it is planned to automate the \
     process of deleting games by the authors, but for now you can contact me to confirm ownership of the project.`,
     generating: {
-      check: '⏳ [1/5] Checking rights...',
-      retrieving: '⏳ [2/5] Retrieving info about project...',
-      processing: '⏳ [3/5] Converting game...',
-      uploading: '⏳ [4/5] Uploading to the server...',
-      botfather: '⏳ [5/5] Adding to BotFather...',
+      check: '⏳ Checking rights...',
+      queue: '⏳ You are in the queue...',
+      retrieving: '⏳ [12/4] Retrieving info about project...',
+      processing: '⏳ [2/4] Converting game...',
+      uploading: '⏳ [3/4] Uploading to the server...',
+      botfather: '⏳ [4/4] Adding to BotFather...',
       done: '✅ Game was successfully added to the bot. It may take up to 5 minutes before it appears in search results.',
       error: {
         default: '❌ Error while converting the game, please try again',
+        alreadyQueued: '❌ You are already in queue',
         gameIsTooBig: '❌ Game\'s files size is more than 5 MB, thus we cannot convert it at the moment',
         botFatherLimit: '❌ Error while adding game to BotFather. Probably, the bot is too busy right now, please try again in 1 hour or contact @hlothdev',
         telegramAPI: '❌ Error while contacting Telegram API, please try again in few minutes or contact @hlothdev',
