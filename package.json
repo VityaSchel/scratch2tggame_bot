@@ -9,7 +9,8 @@
     "workerstart": "node src/queue/worker.js",
     "botstart": "node index.js",
     "dbstart": "mongod --dbpath=./.mongodb --port 9224 --auth",
-    "dbstartlocal": "mongod --dbpath=./.mongodb --port 9224"
+    "dbstartlocal": "mongod --dbpath=./.mongodb --port 9224",
+    "postinstall": "patch-package"
   },
   "author": "vityaschel <hi@hloth.dev> (https://hloth.dev/)",
   "license": "MIT",
@@ -27,6 +28,7 @@
     "mongodb": "^4.3.1",
     "node-fetch": "^3.2.0",
     "node-telegram-bot-api": "^0.56.0",
+    "patch-package": "^6.4.7",
     "readline-sync": "^1.4.10",
     "scratch-api": "^1.1.12",
     "sharp": "^0.30.0",
