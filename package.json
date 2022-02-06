@@ -8,7 +8,7 @@
     "start": "concurrently \"node src/queue/worker.js\" \"node index.js\"",
     "workerstart": "node src/queue/worker.js",
     "botstart": "node index.js",
-    "dbstart": "mongod --dbpath=./.mongodb --port 9224 --bind_ip=\"104.161.79.159\" --auth",
+    "dbstart": "mongod --dbpath=./.mongodb --port 9224 --auth",
     "dbstartlocal": "mongod --dbpath=./.mongodb --port 9224"
   },
   "author": "vityaschel <hi@hloth.dev> (https://hloth.dev/)",
