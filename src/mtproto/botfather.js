@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { randomInt, randomLong } from './utils.js'
 import sharp from 'sharp'
+import _ from 'lodash'
 
 export function addGame(projectID, title, description, photoBuffer, noConnectRetries = false) {
   return new Promise(async resolve => {
@@ -51,14 +52,16 @@ async function sendToBotFather(text) {
   })
 }
 
+const partsSizes = [1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288]
 async function sendMediaToBotFather(imageBuffer) {
   const fileID = randomLong()
-
   const imageSize = Buffer.byteLength(imageBuffer)
-  const chunks = Math.ceil(imageSize / 1024)
+  const partMaxSize = imageSize >= _.last(partsSizes) ? _.last(partsSizes) : partsSizes.find(size => imageSize <= size)
+
+  const chunks = Math.ceil(imageSize / partMaxSize)
   for(let i = 0; i < chunks; i++) {
-    const partSize = i === chunks-1 ? imageSize % 1024 : 1024
-    const part = imageBuffer.slice(i*1024, i*1024 + partSize)
+    const partSize = i === chunks-1 ? imageSize % partMaxSize : partMaxSize
+    const part = imageBuffer.slice(i*partMaxSize, i*partMaxSize + partSize)
     await global.mtprotoapi.call('upload.saveFilePart', {
       file_id: fileID,
       file_part: i,
@@ -82,5 +85,3 @@ async function sendMediaToBotFather(imageBuffer) {
     random_id: randomInt(),
   })
 }
-
-// sendMediaToBotFather(Buffer.from(await fs.readFile('/Users/VITA/Desktop/sussmall.jpeg')))

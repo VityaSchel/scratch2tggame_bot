@@ -25,7 +25,7 @@ export const remafiadb = {
 }
 
 export async function insertToDB(projectID, title, description, size, gameAuthorID, adderID) {
-  await global.db.collection('games')
+  return await global.db.collection('games')
     .insertOne({ _id: projectID, title, description, size, gameAuthorID, adderID, addedAt: Date.now() })
 }
 

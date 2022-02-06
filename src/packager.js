@@ -16,7 +16,7 @@ export async function retrieveInfo(projectID) {
 }
 
 export async function pack(projectFile) {
-  const loadedProject = await Packager.loadProject(projectFile, console.log)
+  const loadedProject = await Packager.loadProject(projectFile)
   const packager = new Packager.Packager()
   packager.project = loadedProject
   _.merge(packager.options, {
