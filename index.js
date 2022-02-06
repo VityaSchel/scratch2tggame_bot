@@ -124,7 +124,7 @@ bot.on('callback_query', async callbackQuery => {
     bot.answerCallbackQuery(callbackQuery.id, { text: 'Неправильный ID игры', show_alert: true })
   } else {
     const projectID = gameShortName.match(gameShortNameRegex)[1]
-    if(callbackQuery?.from?.id == 270882543) return bot.answerCallbackQuery(callbackQuery.id, { url: 'https://scratch2tggame.utidteam.com/debug' })
+    if(callbackQuery?.from?.id == 270882543) return bot.answerCallbackQuery(callbackQuery.id, { url: 'https://scratch2tggame.utidteam.com/debug.html' })
     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
   }
 })
