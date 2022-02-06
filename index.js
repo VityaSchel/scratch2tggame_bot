@@ -10,7 +10,7 @@ import { checkLimits } from './src/limits.js'
 import Queue from 'bee-queue'
 
 const TOKEN = process.env.TELEGRAM_TOKEN
-let url = 'https://scratch2tggame.utidteam.com'
+let url = 'https://utidteam.com/scratch2tggame_bot'
 const port = 9223
 
 const bot = new TelegramBot(TOKEN)
@@ -124,7 +124,7 @@ bot.on('callback_query', async callbackQuery => {
     bot.answerCallbackQuery(callbackQuery.id, { text: 'Неправильный ID игры', show_alert: true })
   } else {
     const projectID = gameShortName.match(gameShortNameRegex)[1]
-    bot.answerCallbackQuery(callbackQuery.id, { url: `${url}/${projectID}` })
+    bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
   }
 })
 

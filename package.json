@@ -5,7 +5,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "botstart": "concurrently \"node src/queue/worker.js\" \"node index.js\"",
+    "start": "concurrently \"node src/queue/worker.js\" \"node index.js\"",
+    "workerstart": "node src/queue/worker.js",
+    "botstart": "node index.js",
     "dbstart": "mongod --dbpath=./.mongodb --port 9224 --auth"
   },
   "author": "vityaschel <hi@hloth.dev> (https://hloth.dev/)",
