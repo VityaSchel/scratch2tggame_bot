@@ -9,21 +9,6 @@ export async function init(dbName = 'scratch2tggame_bot') {
   return client
 }
 
-export const remafiadb = {
-  async getUser(username) {
-    let db = await init()
-    let users = await db.collection('users')
-      .find({ username })
-      .collation({ locale: 'ru', strength: 2 })
-      .toArray()
-
-    let user = users[0] ?? null
-    if(!user) return null
-    user.banned = await db.collection('userBans').findOne({ username }) ?? false
-    return user
-  }
-}
-
 export async function insertToDB(projectID, title, description, size, gameAuthorID, adderID) {
   return await global.db.collection('games')
     .insertOne({ _id: projectID, title, description, size, gameAuthorID, adderID, addedAt: Date.now() })
