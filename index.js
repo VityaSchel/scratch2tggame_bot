@@ -6,22 +6,32 @@ import localization from './src/localization.js'
 import TelegramBot from 'node-telegram-bot-api'
 import { init as initDB, queryGame, isGameExists } from './src/db.js'
 import { checkLimits } from './src/limits.js'
-// import { insertToQueue, removeFromQueue } from './src/queue/manager.js'
+import { insertToQueue, removeFromQueue } from './src/queue/manager.js'
 import Queue from 'bee-queue'
 
 const TOKEN = process.env.TELEGRAM_TOKEN
-let url = 'https://utidteam.com/scratch2tggame_bot'
 const port = 9223
+const useNgrok = false
+// if useNgrok is false, set staticurl variable to URL
+// that Fastify webserver can take, for example subdomain
+// otherwise, if useNgrok is true, staticURL variable will
+// be ignored
+const staticURL = 'https://utidteam.com/scratch2tggame_bot'
 
+let url = ''
 const bot = new TelegramBot(TOKEN)
 const app = fastify()
 const dbClient = await initDB()
 const queue = new Queue('games-converting')
 await queue.destroy()
 
-// const ngrokurl = await ngrok.connect({ addr: port, authtoken: process.env.NGROK })
-// console.log(ngrokurl)
-// url = ngrokurl
+if (useNgrok) {
+  const ngrokurl = await ngrok.connect({ addr: port, authtoken: process.env.NGROK })
+  console.log(ngrokurl)
+  url = ngrokurl
+} else {
+  url = staticURL
+}
 
 bot.setWebHook(`${url}/bot${TOKEN}`)
 
@@ -124,7 +134,6 @@ bot.on('callback_query', async callbackQuery => {
     bot.answerCallbackQuery(callbackQuery.id, { text: 'Неправильный ID игры', show_alert: true })
   } else {
     const projectID = gameShortName.match(gameShortNameRegex)[1]
-    if(callbackQuery?.from?.id == 270882543) return bot.answerCallbackQuery(callbackQuery.id, { url: 'https://scratch2tggame.utidteam.com/debug.html' })
     bot.answerCallbackQuery(callbackQuery.id, { url: `https://scratch2tggame.utidteam.com/${projectID}` })
   }
 })
