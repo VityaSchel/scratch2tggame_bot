@@ -5,17 +5,37 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "concurrently \"node src/queue/worker.js\" \"node index.js\"",
+    "workerstart": "node src/queue/worker.js",
+    "botstart": "node index.js",
+    "dbstart": "mongod --dbpath=./.mongodb --port 9224 --auth",
+    "dbstartlocal": "mongod --dbpath=./.mongodb --port 9224",
+    "postinstall": "patch-package"
   },
   "author": "vityaschel <hi@hloth.dev> (https://hloth.dev/)",
   "license": "MIT",
   "dependencies": {
+    "@mtproto/core": "^6.1.1",
+    "@turbowarp/packager": "0.5.0",
+    "arraybuffer-to-buffer": "^0.0.7",
+    "bee-queue": "^1.4.0",
+    "concurrently": "^7.0.0",
+    "dedent": "^0.7.0",
     "dotenv": "^15.0.0",
     "fastify": "^3.27.0",
     "level": "^7.0.1",
-    "node-telegram-bot-api": "^0.56.0"
+    "md5-file": "^5.0.0",
+    "mongodb": "^4.3.1",
+    "node-fetch": "^3.2.0",
+    "node-telegram-bot-api": "^0.56.0",
+    "patch-package": "^6.4.7",
+    "readline-sync": "^1.4.10",
+    "scratch-api": "^1.1.12",
+    "sharp": "^0.30.0",
+    "unzipper": "^0.10.11"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^8.8.0",
+    "ngrok": "^4.3.0"
   }
 }
