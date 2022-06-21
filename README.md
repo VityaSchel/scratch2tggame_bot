@@ -5,7 +5,22 @@ Telegram bot, that accepts link to [scratch.mit.edu](https://scratch.mit.edu), c
 
 ## Reason to abandon
 
-This project is ARCHIVED and NOT MAINTAINED. This means you are not allowed to message me about it please. It was consuming way much resources to run on server and literally no one was using it. If you cool enough, try a challenge: run it in serverless function. Follow instructions in [How to use](#how-to-use) in order to make it work.
+This project is ARCHIVED and NOT MAINTAINED. It was consuming way much resources to run on server and literally no one was using it. If you cool enough, try a challenge: run it in serverless function. Follow instructions in [How to use](#how-to-use) in order to make it work.
+
+## TODO
+
+These are my kanban tasks at the moment of abandoning:
+
+- [ ] Allow only one simultaneous operation for user
+- [ ] Convertation queue
+- [ ] Static website setup
+- [ ] Add custom js & css and localize it
+- [x] Setup limits for users
+- [x] Check if project by link exists 
+- [x] Add games to db
+- [x] Search games in db with Telegram inline queries
+- [x] Callback queries (games)
+- [x] Translate bot to English
 
 ## How to use
 
